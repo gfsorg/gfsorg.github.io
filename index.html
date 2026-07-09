@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GFSO — Generic Free Software Organization</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: #0d1117;
+    color: #e6edf3;
+    min-height: 100vh;
+    line-height: 1.6;
+  }
+  a { color: #58a6ff; text-decoration: none; }
+  a:hover { text-decoration: underline; }
+
+  /* Header */
+  header {
+    background: #161b22;
+    border-bottom: 1px solid #30363d;
+    padding: 4rem 1.5rem 3rem;
+    text-align: center;
+  }
+  header h1 {
+    font-size: 4rem;
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    background: linear-gradient(135deg, #3fb950, #58a6ff);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  header p {
+    margin-top: 0.75rem;
+    font-size: 1.25rem;
+    color: #8b949e;
+    font-weight: 400;
+  }
+  header .header-link {
+    display: inline-block;
+    margin-top: 1.25rem;
+    padding: 0.6rem 1.5rem;
+    border: 1px solid #30363d;
+    border-radius: 6px;
+    color: #c9d1d9;
+    font-size: 0.9rem;
+    font-weight: 500;
+    transition: border-color 0.2s, background 0.2s;
+  }
+  header .header-link:hover {
+    border-color: #58a6ff;
+    background: #1f2a40;
+    text-decoration: none;
+  }
+
+  /* Sections */
+  .container {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 3rem 1.5rem;
+  }
+  .section-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+    color: #f0f6fc;
+  }
+  .section-subtitle {
+    color: #8b949e;
+    font-size: 0.95rem;
+    margin-bottom: 2rem;
+  }
+
+  /* About */
+  .about-text {
+    color: #c9d1d9;
+    font-size: 1.05rem;
+    max-width: 700px;
+  }
+  .about-text p + p { margin-top: 1rem; }
+
+  /* Principles */
+  .principles {
+    display: grid;
+    gap: 1.25rem;
+    margin-top: 0.5rem;
+  }
+  @media (min-width: 640px) {
+    .principles { grid-template-columns: repeat(2, 1fr); }
+  }
+  .principle-card {
+    background: #161b22;
+    border: 1px solid #30363d;
+    border-radius: 8px;
+    padding: 1.5rem;
+  }
+  .principle-card h3 {
+    font-size: 1.05rem;
+    font-weight: 600;
+    margin-bottom: 0.4rem;
+    color: #f0f6fc;
+  }
+  .principle-card p {
+    color: #8b949e;
+    font-size: 0.9rem;
+  }
+
+  /* Repo Cards */
+  .repo-grid {
+    display: grid;
+    gap: 1rem;
+  }
+  .repo-card {
+    background: #161b22;
+    border: 1px solid #30363d;
+    border-radius: 8px;
+    padding: 1.25rem 1.5rem;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    display: block;
+  }
+  .repo-card:hover {
+    border-color: #58a6ff;
+    box-shadow: 0 0 0 1px #58a6ff;
+    text-decoration: none;
+  }
+  .repo-card:hover .repo-name { text-decoration: underline; }
+  .repo-name {
+    font-size: 1.15rem;
+    font-weight: 600;
+    color: #58a6ff;
+  }
+  .repo-desc {
+    margin-top: 0.35rem;
+    color: #8b949e;
+    font-size: 0.9rem;
+  }
+  .repo-meta {
+    margin-top: 0.75rem;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    align-items: center;
+    font-size: 0.8rem;
+    color: #8b949e;
+  }
+  .repo-meta span { display: inline-flex; align-items: center; gap: 0.3rem; }
+  .lang-dot {
+    width: 10px; height: 10px;
+    border-radius: 50%;
+    display: inline-block;
+    flex-shrink: 0;
+  }
+  .topic-tag {
+    display: inline-block;
+    padding: 0.15rem 0.5rem;
+    border-radius: 12px;
+    background: #1f2a40;
+    color: #58a6ff;
+    font-size: 0.75rem;
+  }
+
+  /* Loading / empty / error */
+  .loading, .empty, .error-msg {
+    text-align: center;
+    padding: 3rem 1rem;
+  }
+  .spinner {
+    width: 36px; height: 36px;
+    border: 3px solid #30363d;
+    border-top-color: #58a6ff;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    margin: 0 auto 1rem;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .empty { color: #8b949e; }
+  .empty .empty-icon { font-size: 2.5rem; margin-bottom: 0.75rem; }
+  .error-msg { color: #f85149; }
+  .error-msg .error-icon { font-size: 2rem; margin-bottom: 0.75rem; }
+
+  /* Get Involved */
+  .involve-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    margin-top: 0.5rem;
+  }
+  .involve-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.7rem 1.5rem;
+    border: 1px solid #30363d;
+    border-radius: 6px;
+    color: #c9d1d9;
+    font-weight: 500;
+    font-size: 0.9rem;
+    transition: border-color 0.2s, background 0.2s;
+  }
+  .involve-link:hover {
+    border-color: #58a6ff;
+    background: #1f2a40;
+    text-decoration: none;
+  }
+
+  /* Footer */
+  footer {
+    text-align: center;
+    padding: 2rem 1.5rem;
+    border-top: 1px solid #30363d;
+    color: #8b949e;
+    font-size: 0.85rem;
+  }
+
+  /* hr */
+  hr {
+    border: none;
+    border-top: 1px solid #30363d;
+    margin: 0;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>GFSO</h1>
+  <p>Generic Free Software Organization</p>
+  <a class="header-link" href="https://github.com/gfsorg" target="_blank" rel="noopener">github.com/gfsorg</a>
+</header>
+
+<!-- About -->
+<section class="container">
+  <h2 class="section-title">About</h2>
+  <p class="section-subtitle">What we are and why we exist</p>
+  <div class="about-text">
+    <p>
+      GFSO is a community-driven organization dedicated to creating, maintaining,
+      and promoting <strong>free and open-source software</strong> for everyone.
+      We believe software should be transparent, accessible, and built collaboratively —
+      not locked behind proprietary walls.
+    </p>
+    <p>
+      Our projects span a wide range of domains: developer tooling, utilities,
+      libraries, and full applications — all released under permissive or
+      copyleft licenses. Whether you are a seasoned contributor or a first-timer,
+      there is a place for you here.
+    </p>
+  </div>
+</section>
+
+<hr>
+
+<!-- Principles -->
+<section class="container">
+  <h2 class="section-title">Principles</h2>
+  <p class="section-subtitle">The values that guide every project we ship</p>
+  <div class="principles">
+    <div class="principle-card">
+      <h3>Freedom</h3>
+      <p>Users have the right to run, study, share, and modify any GFSO project without restriction.</p>
+    </div>
+    <div class="principle-card">
+      <h3>Transparency</h3>
+      <p>Every line of code, every decision, and every roadmap item is public by default.</p>
+    </div>
+    <div class="principle-card">
+      <h3>Simplicity</h3>
+      <p>We favour focused, well-documented tools over bloated, opaque systems.</p>
+    </div>
+    <div class="principle-card">
+      <h3>Community</h3>
+      <p>Maintainers are stewards, not gatekeepers. Contributions are welcomed and nurtured.</p>
+    </div>
+  </div>
+</section>
+
+<hr>
+
+<!-- Repositories -->
+<section class="container">
+  <h2 class="section-title">Repositories</h2>
+  <p class="section-subtitle">Our open-source projects on GitHub</p>
+  <div id="repos"><div class="loading"><div class="spinner"></div>Loading repositories...</div></div>
+</section>
+
+<hr>
+
+<!-- Get Involved -->
+<section class="container">
+  <h2 class="section-title">Get Involved</h2>
+  <p class="section-subtitle">Everyone is welcome</p>
+  <div class="involve-links">
+    <a class="involve-link" href="https://github.com/gfsorg" target="_blank" rel="noopener">GitHub Organization</a>
+    <a class="involve-link" href="https://github.com/gfsorg/.github/discussions" target="_blank" rel="noopener">Discussions</a>
+    <a class="involve-link" href="https://github.com/gfsorg/.github/issues" target="_blank" rel="noopener">Contact</a>
+  </div>
+</section>
+
+<footer>
+  <a href="https://github.com/gfsorg" target="_blank" rel="noopener">github.com/gfsorg</a>
+</footer>
+
+<script>
+const LANG_COLORS = {
+  JavaScript: '#f1e05a', TypeScript: '#3178c6', Python: '#3572A5', Go: '#00ADD8',
+  Rust: '#dea584', C: '#555555', 'C++': '#f34b7d', Java: '#b07219', Ruby: '#701516',
+  Shell: '#89e051', HTML: '#e34c26', CSS: '#563d7c', Scala: '#c22d40', Kotlin: '#A97BFF',
+  Swift: '#F05138', PHP: '#4F5D95', Lua: '#000080', Haskell: '#5e5086', Elixir: '#6e4a7e',
+  Zig: '#ec915c', Dart: '#00B4AB', Racket: '#3c5caa', Nix: '#7e7eff',
+};
+
+(async () => {
+  const container = document.getElementById('repos');
+
+  try {
+    const res = await fetch('https://api.github.com/users/gfsorg/repos?per_page=100&sort=updated&type=public');
+    if (res.status === 404) {
+      container.innerHTML =
+        `<div class="empty">
+          <div class="empty-icon">📦</div>
+          <p>This GitHub account hasn't been created yet.</p>
+          <p style="margin-top:0.5rem;font-size:0.85rem;">Head over to <a href="https://github.com/gfsorg" target="_blank" rel="noopener">github.com/gfsorg</a> to get started!</p>
+        </div>`;
+      return;
+    }
+    if (!res.ok) throw new Error(`GitHub API returned ${res.status}`);
+    const repos = await res.json();
+
+    if (!repos.length) {
+      container.innerHTML =
+        `<div class="empty">
+          <div class="empty-icon">📦</div>
+          <p>No public repositories yet.</p>
+          <p style="margin-top:0.5rem;font-size:0.85rem;">Watch <a href="https://github.com/gfsorg" target="_blank" rel="noopener">github.com/gfsorg</a> for upcoming projects!</p>
+        </div>`;
+      return;
+    }
+
+    // Sort: push forked repos to the bottom
+    repos.sort((a, b) => (a.fork === b.fork ? 0 : a.fork ? 1 : -1));
+
+    container.innerHTML = '<div class="repo-grid"></div>';
+    const grid = container.querySelector('.repo-grid');
+
+    for (const repo of repos) {
+      const card = document.createElement('a');
+      card.href = repo.html_url;
+      card.target = '_blank';
+      card.rel = 'noopener';
+      card.className = 'repo-card';
+
+      let metaHtml = '';
+      if (repo.language) {
+        const dot = LANG_COLORS[repo.language] || '#8b949e';
+        metaHtml += `<span><span class="lang-dot" style="background:${dot}"></span>${escapeHtml(repo.language)}</span>`;
+      }
+      if (repo.stargazers_count > 0) {
+        metaHtml += `<span>★ ${repo.stargazers_count}</span>`;
+      }
+      if (repo.forks_count > 0) {
+        metaHtml += `<span>⑂ ${repo.forks_count}</span>`;
+      }
+      if (repo.topics && repo.topics.length) {
+        metaHtml += repo.topics.slice(0, 4).map(t =>
+          `<span class="topic-tag">${escapeHtml(t)}</span>`
+        ).join('');
+      }
+
+      const suffix = repo.fork
+        ? `<span style="color:#8b949e;font-size:0.8rem;margin-left:auto;">forked</span>`
+        : '';
+
+      card.innerHTML = `
+        <div style="display:flex;align-items:center;gap:0.5rem;flex-wrap:wrap;">
+          <span class="repo-name">${escapeHtml(repo.name)}</span>
+          ${suffix}
+        </div>
+        ${repo.description ? `<div class="repo-desc">${escapeHtml(repo.description)}</div>` : ''}
+        <div class="repo-meta">${metaHtml}</div>
+        <div style="font-size:0.75rem;color:#484f58;margin-top:0.4rem;">Updated ${new Date(repo.updated_at).toLocaleDateString()}</div>
+      `;
+      grid.appendChild(card);
+    }
+  } catch (err) {
+    container.innerHTML =
+      `<div class="error-msg">
+        <div class="error-icon">⚠</div>
+        <p>Failed to load repositories</p>
+        <p style="font-size:0.85rem;margin-top:0.4rem;">${escapeHtml(err.message)}</p>
+      </div>`;
+  }
+
+  function escapeHtml(str) {
+    const div = document.createElement('div');
+    div.textContent = str;
+    return div.innerHTML;
+  }
+})();
+</script>
+
+</body>
+</html>
